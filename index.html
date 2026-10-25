@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Perhitungan HPP, Operasional & Laba Titip Jual Churros | Bakery Flour Edition</title>
+  <meta name="description" content="Aplikasi pengelolaan Purchase Order (PO), perhitungan HPP, biaya operasional, dan analisis laba rugi konsinyasi UMKM Churros berdesain Bakery Flour.">
+  
+  <!-- Google Fonts: Cormorant Garamond & Lora per design.md -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome 6 Free (PRD Section 10.1) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Bakery Flour Design System Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Site Header / Bakery Counter Slip Bar -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="javascript:void(0)" onclick="switchTab('dasbor')" class="brand-block">
+        <div class="brand-badge">
+          <!-- Artisan Bakery Flour Wheat Icon -->
+          <i class="fa-solid fa-wheat-awn fa-lg" aria-hidden="true"></i>
+        </div>
+        <div class="brand-titles">
+          <h1>CHURROS ARTISAN</h1>
+          <div class="brand-tagline">HPP, Operasional &amp; Transaksi PO</div>
+        </div>
+      </a>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs-wrapper" aria-label="Navigasi Menu Utama">
+        <ul class="nav-tabs">
+          <li>
+            <button class="nav-tab-btn active" data-tab="dasbor" onclick="switchTab('dasbor')">
+              <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+              <span>Dasbor &amp; Laba</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-tab-btn" data-tab="resep" onclick="switchTab('resep')">
+              <i class="fa-solid fa-mortar-pestle" aria-hidden="true"></i>
+              <span>Resep &amp; HPP</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-tab-btn" data-tab="transaksi" onclick="switchTab('transaksi')">
+              <i class="fa-solid fa-receipt" aria-hidden="true"></i>
+              <span>Transaksi PO</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-tab-btn" data-tab="mitra" onclick="switchTab('mitra')">
+              <i class="fa-solid fa-shop" aria-hidden="true"></i>
+              <span>Mitra Warung</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-tab-btn" data-tab="bahan" onclick="switchTab('bahan')">
+              <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
+              <span>Bahan &amp; Biaya</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-tab-btn" data-tab="simulasi" onclick="switchTab('simulasi')">
+              <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+              <span>Simulasi Laba</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-tab-btn" data-tab="prd" onclick="switchTab('prd')">
+              <i class="fa-solid fa-book-bookmark" aria-hidden="true"></i>
+              <span>Dokumen PRD</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Global Actions -->
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-sm" onclick="exportDataJSON()" title="Cadangkan Data ke File JSON">
+          <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i>
+          <span>Cadangkan</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="importDataJSON()" title="Pulihkan Data dari File JSON">
+          <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+          <span>Pulihkan</span>
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="openNewPoModal()">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i>
+          <span>PO Baru</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-main">
+
+    <!-- Top Bakery Hero Banner -->
+    <section class="bakery-hero-banner">
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <span>● TRANSAKSI BERBASIS PURCHASE ORDER</span>
+          <span>·</span>
+          <span>EDISI BAKERY FLOUR</span>
+        </div>
+        <h2>Pencatatan Cermat, Laba Terlihat Pasti</h2>
+        <p class="hero-description">
+          PO kini menjadi unit transaksi utama untuk <strong>mitra titipan warung</strong> dan <strong>pesanan langsung (pre-order)</strong>.
+          Kalkulasi otomatis HPP snapshot, pembayaran uang muka (DP), rekonsiliasi sisa retur, hingga perhitungan laba bersih per nomor PO.
+        </p>
+        <div class="hero-meta-strip">
+          <div class="hero-meta-item">
+            <span class="hero-meta-label">Format Nomor PO</span>
+            <span class="hero-meta-val">PO-YYYYMM-NNN</span>
+          </div>
+          <div class="hero-meta-item">
+            <span class="hero-meta-label">Siklus Status</span>
+            <span class="hero-meta-val">Draft s.d. Selesai</span>
+          </div>
+          <div class="hero-meta-item">
+            <span class="hero-meta-label">Ikon Antarmuka</span>
+            <span class="hero-meta-val">Font Awesome 6 Free</span>
+          </div>
+          <div class="hero-meta-item">
+            <span class="hero-meta-label">Metode Pembayaran</span>
+            <span class="hero-meta-val">DP &amp; Pelunasan</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-media-wrapper">
+        <img src="assets/churros-artisan.jpg" alt="Ilustrasi Churros Artisan dan Saus Cokelat Hangat" class="hero-media-img">
+        <div class="hero-media-caption">Handcrafted Cinnamon Churros &amp; Melted Belgian Chocolate Dip</div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         VIEW 1: DASBOR & ANALISIS LABA
+         ======================================================== -->
+    <section id="view-dasbor" class="view-panel active">
+      <!-- Summary Metrics Grid -->
+      <div class="stats-grid">
+        <div class="stat-slip">
+          <div class="stat-label">
+            <span>Total Omzet Penjualan</span>
+            <i class="fa-solid fa-coins icon-secondary" aria-hidden="true"></i>
+          </div>
+          <div class="stat-value" id="dash-omzet">Rp 0</div>
+          <div class="stat-desc">Pendapatan kotor dari seluruh PO</div>
+        </div>
+        <div class="stat-slip">
+          <div class="stat-label">
+            <span>Total Beban HPP PO</span>
+            <i class="fa-solid fa-basket-shopping icon-secondary" aria-hidden="true"></i>
+          </div>
+          <div class="stat-value" id="dash-hpp">Rp 0</div>
+          <div class="stat-desc">Beban HPP produk terjual &amp; waste</div>
+        </div>
+        <div class="stat-slip">
+          <div class="stat-label">
+            <span>Total Biaya Operasional</span>
+            <i class="fa-solid fa-truck-fast icon-secondary" aria-hidden="true"></i>
+          </div>
+          <div class="stat-value" id="dash-ops">Rp 0</div>
+          <div class="stat-desc">Ongkos antar + alokasi dapur tetap</div>
+        </div>
+        <div class="stat-slip highlight-stat">
+          <div class="stat-label">
+            <span>Laba Bersih Keseluruhan</span>
+            <i class="fa-solid fa-chart-line icon-tertiary" aria-hidden="true"></i>
+          </div>
+          <div class="stat-value" id="dash-laba">Rp 0</div>
+          <div class="stat-desc">Omzet dikurangi HPP &amp; Operasional</div>
+        </div>
+        <div class="stat-slip">
+          <div class="stat-label">
+            <span>Margin Bersih Rata-Rata</span>
+            <i class="fa-solid fa-percent icon-secondary" aria-hidden="true"></i>
+          </div>
+          <div class="stat-value" id="dash-margin">0%</div>
+          <div class="stat-desc">Efisiensi keuntungan dari omzet</div>
+        </div>
+        <div class="stat-slip">
+          <div class="stat-label">
+            <span>Tingkat Terjual (Sell-Through)</span>
+            <i class="fa-solid fa-arrow-trend-up icon-secondary" aria-hidden="true"></i>
+          </div>
+          <div class="stat-value" id="dash-sellthrough">0%</div>
+          <div class="stat-desc">Persentase pcs laku dari titipan</div>
+        </div>
+        <div class="stat-slip">
+          <div class="stat-label">
+            <span>Piutang Belum Terbayar</span>
+            <i class="fa-solid fa-hand-holding-dollar icon-error" aria-hidden="true"></i>
+          </div>
+          <div class="stat-value" id="dash-piutang">Rp 0</div>
+          <div class="stat-desc">Sisa tagihan PO belum lunas</div>
+        </div>
+      </div>
+
+      <!-- Partner Ranking Table (PRD FR-22 & FR-23) -->
+      <div class="artisan-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2>Peringkat Evaluasi Mitra &amp; Pesanan Langsung</h2>
+            <p class="card-subtitle">Urutan profitabilitas warung titipan dan pelanggan langsung berdasarkan laba bersih serta rekomendasi kuota.</p>
+          </div>
+          <div class="card-header-action">
+            <button class="btn btn-secondary btn-sm" onclick="switchTab('simulasi')">
+              <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+              <span>Simulasi BEP</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="artisan-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">Rank</th>
+                <th>Mitra Warung / Klien</th>
+                <th class="table-num">Titip/Pesan</th>
+                <th class="table-num">Terjual (Rate)</th>
+                <th class="table-num">Omzet</th>
+                <th class="table-num">Laba Bersih (Margin)</th>
+                <th>Status</th>
+                <th>Rekomendasi &amp; Keterangan</th>
+              </tr>
+            </thead>
+            <tbody id="dash-ranking-tbody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Quick Action Order Slip Strip -->
+      <div class="artisan-card" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h3>Ada Pesanan atau Pengantaran Baru?</h3>
+          <p class="card-subtitle" style="margin: 0;">Buat Purchase Order (PO) untuk mengunci HPP snapshot dan mencatat pembayaran DP.</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn btn-secondary" onclick="resetToDefaultData()">
+            <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+            <span>Muat Ulang Data Contoh</span>
+          </button>
+          <button class="btn btn-primary" onclick="openNewPoModal()">
+            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+            <span>Buat PO Baru</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         VIEW 2: RESEP & KALKULATOR HPP
+         ======================================================== -->
+    <section id="view-resep" class="view-panel">
+      <div class="artisan-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2>Kalkulator Resep &amp; HPP Otomatis per Varian</h2>
+            <p class="card-subtitle">HPP dihitung langsung dari komposisi bahan baku, susut goreng 3%, kemasan box, gas/listrik, dan tenaga kerja.</p>
+          </div>
+          <div class="card-header-action">
+            <button class="btn btn-primary btn-sm" onclick="openAddRecipeModal()">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              <span>Buat Resep Baru</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Formula reference callout -->
+        <div class="formula-callout">
+          <strong>RUMUS HPP RESEP (PRD Bagian 6.1):</strong><br>
+          Biaya Produksi Langsung = Biaya Bahan + Kemasan + Gas/Listrik + Tenaga Kerja Langsung<br>
+          Hasil Efektif = Hasil Jadi Batch × (100% − % Susut)<br>
+          HPP Pokok per Pcs = Biaya Produksi Langsung ÷ Hasil Efektif
+        </div>
+
+        <!-- Recipe cards rendered here -->
+        <div id="resep-cards-container">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         VIEW 3: TRANSAKSI BERBASIS PURCHASE ORDER (PO)
+         ======================================================== -->
+    <section id="view-transaksi" class="view-panel">
+      <div class="artisan-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2>Daftar Purchase Order (PO) &amp; Rekonsiliasi</h2>
+            <p class="card-subtitle">Semua transaksi dikelola per nomor PO (PO-YYYYMM-NNN) dengan status berjenjang dari Draft sampai Selesai.</p>
+          </div>
+          <div class="card-header-action" style="display:flex; gap: 8px;">
+            <button class="btn btn-primary btn-sm" onclick="openNewPoModal()">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              <span>Buat PO Baru</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Controls -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+          <span style="font-size: 0.8rem; font-weight: 600; color: var(--color-muted); text-transform: uppercase;">Filter Jalur:</span>
+          <button class="btn btn-secondary btn-sm filter-po-btn active" data-filter-type="all" onclick="filterPo('all')">Semua PO</button>
+          <button class="btn btn-secondary btn-sm filter-po-btn" data-filter-type="titip_mitra" onclick="filterPo('titip_mitra')">Mitra Titipan</button>
+          <button class="btn btn-secondary btn-sm filter-po-btn" data-filter-type="pelanggan_langsung" onclick="filterPo('pelanggan_langsung')">Pelanggan Langsung</button>
+
+          <span style="margin-left: 14px; font-size: 0.8rem; font-weight: 600; color: var(--color-muted); text-transform: uppercase;">Status:</span>
+          <select class="form-select" style="height: 36px; padding: 0 32px 0 12px; font-size: 0.82rem; width: auto;" onchange="filterPo(undefined, this.value)">
+            <option value="all">Semua Status</option>
+            <option value="Draft">Draft</option>
+            <option value="Dikonfirmasi">Dikonfirmasi</option>
+            <option value="Diproduksi">Diproduksi</option>
+            <option value="Dikirim">Dikirim</option>
+            <option value="Selesai">Selesai</option>
+            <option value="Dibatalkan">Dibatalkan</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table class="artisan-table">
+            <thead>
+              <tr>
+                <th>No. PO &amp; Tgl</th>
+                <th>Klien / Mitra</th>
+                <th>Status PO</th>
+                <th class="table-num">Pesan / HPP</th>
+                <th class="table-num">Terjual &amp; Sisa</th>
+                <th class="table-num">Omzet</th>
+                <th class="table-num">Laba Bersih</th>
+                <th>Pembayaran</th>
+                <th style="text-align: right;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="po-tbody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         VIEW 4: MITRA TITIPAN (WARUNG & TOKO)
+         ======================================================== -->
+    <section id="view-mitra" class="view-panel">
+      <div class="artisan-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2>Master Data Mitra Titip Jual (Warung &amp; Toko)</h2>
+            <p class="card-subtitle">Kelola daftar toko konsinyasi, skema penetapan harga (Harga Setor, Komisi, Bagi Hasil, Beli Putus), dan ongkos antar standar.</p>
+          </div>
+          <div class="card-header-action">
+            <button class="btn btn-primary btn-sm" onclick="openAddMitraModal()">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              <span>Tambah Mitra Baru</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="artisan-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">No</th>
+                <th>Nama Mitra Warung</th>
+                <th>Alamat</th>
+                <th>Kontak / Telp</th>
+                <th>Skema Kerjasama</th>
+                <th class="table-num">Ongkos Antar</th>
+                <th style="text-align: right;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="mitra-tbody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         VIEW 5: MASTER BAHAN BAKU & BIAYA OPERASIONAL
+         ======================================================== -->
+    <section id="view-bahan" class="view-panel">
+      <!-- Master Bahan Baku -->
+      <div class="artisan-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2>Master Bahan Baku &amp; Harga Beli</h2>
+            <p class="card-subtitle">Daftar harga bahan per satuan beli dan konversi otomatis ke satuan resep (gram, ml, butir).</p>
+          </div>
+          <div class="card-header-action">
+            <button class="btn btn-primary btn-sm" onclick="openAddBahanModal()">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              <span>Tambah Bahan Baru</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="artisan-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">No</th>
+                <th>Nama Bahan Baku</th>
+                <th>Satuan Beli</th>
+                <th class="table-num">Harga Beli</th>
+                <th class="table-num">Konversi Resep</th>
+                <th class="table-num">Harga per Satuan Resep</th>
+                <th style="text-align: right;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="bahan-tbody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Biaya Operasional Tetap Bulanan -->
+      <div class="artisan-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2>Alokasi Biaya Operasional Tetap (Bulanan)</h2>
+            <p class="card-subtitle">Biaya sewa, listrik, dan penyusutan alat yang dibebankan per pcs churros berdasarkan estimasi produksi bulanan.</p>
+          </div>
+          <div class="card-header-action">
+            <button class="btn btn-secondary btn-sm" onclick="addOpsTetap()">
+              <i class="fa-solid fa-plus" aria-hidden="true"></i>
+              <span>Tambah Biaya Tetap</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 340px; gap: 24px;">
+          <div>
+            <div class="table-responsive">
+              <table class="artisan-table">
+                <thead>
+                  <tr>
+                    <th>Komponen Biaya Tetap</th>
+                    <th class="table-num">Nominal per Bulan</th>
+                    <th style="text-align: right;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="ops-tetap-tbody">
+                  <!-- Rendered via JS -->
+                </tbody>
+                <tfoot>
+                  <tr style="background-color: var(--color-neutral); font-weight: 700;">
+                    <td>Total Biaya Tetap Bulanan</td>
+                    <td class="table-num" id="ops-total-tetap">Rp 0</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="stat-slip" style="padding: 20px;">
+              <div class="form-field" style="margin-bottom: 8px;">
+                <label class="form-label">ESTIMASI PRODUKSI BULANAN (PCS)</label>
+                <input type="number" id="ops-estimasi-pcs" class="form-input" value="1000" min="100" step="50" onchange="updateEstimasiPcs()">
+                <span class="form-helper">Perkiraan total pcs churros diproduksi per bulan.</span>
+              </div>
+            </div>
+
+            <div class="stat-slip highlight-stat" style="padding: 20px;">
+              <div class="stat-label">Beban Alokasi Tetap per Pcs</div>
+              <div class="stat-value" id="ops-alokasi-per-pcs" style="font-size: 2.2rem;">Rp 800</div>
+              <div class="stat-desc">Dialokasikan ke setiap pcs churros yang dititip ke warung.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         VIEW 6: SIMULASI "BAGAI BAGAIMANA JIKA" (WHAT-IF)
+         ======================================================== -->
+    <section id="view-simulasi" class="view-panel">
+      <div class="artisan-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <h2>Simulasi Laba &amp; Titik Impas (What-If Scenario)</h2>
+            <p class="card-subtitle">Geser parameter di bawah untuk melihat secara langsung dampak perubahan harga setor, retur, dan ongkos antar ke laba bersih Anda.</p>
+          </div>
+          <div class="card-header-action">
+            <span class="tag-badge">FR-24 INTERAKTIF</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+          <!-- Controls -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="range-container">
+              <div class="range-header">
+                <span class="form-label" style="margin: 0;">HARGA SETOR DARI MITRA (RP/PCS)</span>
+                <span class="range-val-badge" id="sim-val-harga-setor">Rp 6.500</span>
+              </div>
+              <input type="range" id="sim-harga-setor" class="artisan-range" min="4500" max="10000" step="250" value="6500">
+              <span class="form-helper">Berapa rupiah yang Anda terima untuk setiap pcs yang terjual.</span>
+            </div>
+
+            <div class="range-container">
+              <div class="range-header">
+                <span class="form-label" style="margin: 0;">JUMLAH PCS DITITIP SEKALI ANTAR</span>
+                <span class="range-val-badge" id="sim-val-porsi-titip">30 pcs</span>
+              </div>
+              <input type="range" id="sim-porsi-titip" class="artisan-range" min="10" max="100" step="5" value="30">
+              <span class="form-helper">Kapasitas etalase / stoples titipan di warung.</span>
+            </div>
+
+            <div class="range-container">
+              <div class="range-header">
+                <span class="form-label" style="margin: 0;">TINGKAT TERJUAL (SELL-THROUGH RATE)</span>
+                <span class="range-val-badge" id="sim-val-sell-through">80%</span>
+              </div>
+              <input type="range" id="sim-sell-through" class="artisan-range" min="30" max="100" step="5" value="80">
+              <span class="form-helper">Persentase churros yang laku. Sisanya menjadi retur/waste rusak.</span>
+            </div>
+
+            <div class="range-container">
+              <div class="range-header">
+                <span class="form-label" style="margin: 0;">ONGKOS ANTAR (BENSIN) SEKALI JALAN</span>
+                <span class="range-val-badge" id="sim-val-ongkos-antar">Rp 6.000</span>
+              </div>
+              <input type="range" id="sim-ongkos-antar" class="artisan-range" min="0" max="25000" step="1000" value="6000">
+              <span class="form-helper">Biaya transport pengantaran dan penjemputan setoran.</span>
+            </div>
+          </div>
+
+          <!-- Live Output Panel -->
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="order-slip-card" style="margin-top: 0;">
+              <div class="slip-header">
+                <div class="slip-title">HASIL SIMULASI PENGANTARAN</div>
+                <div class="slip-meta">PROYEKSI SATU KALI TITIP JUAL</div>
+              </div>
+
+              <div class="slip-line">
+                <span>Pcs Terjual</span>
+                <span id="sim-res-terjual">24 pcs</span>
+              </div>
+              <div class="slip-line">
+                <span>Pcs Sisa Hangus / Waste</span>
+                <span id="sim-res-waste" style="color:var(--color-error);">6 pcs</span>
+              </div>
+              <div class="slip-line">
+                <span>Estimasi Omzet Pendapatan</span>
+                <span id="sim-res-omzet">Rp 156.000</span>
+              </div>
+              <div class="slip-line">
+                <span>Beban HPP Produk Dibawa (30 pcs × Rp 4.000)</span>
+                <span id="sim-res-hpp" style="color:var(--color-muted);">Rp 120.000</span>
+              </div>
+              <div class="slip-line">
+                <span>Biaya Operasional (Antar + Beban Tetap)</span>
+                <span id="sim-res-ops" style="color:var(--color-muted);">Rp 30.000</span>
+              </div>
+              <div class="slip-line total-line">
+                <span>PROYEKSI LABA BERSIH</span>
+                <span id="sim-res-laba">Rp 6.000</span>
+              </div>
+              <div class="slip-line">
+                <span>Margin Bersih Penjualan</span>
+                <span id="sim-res-margin" style="font-weight: 600;">3.8%</span>
+              </div>
+              <div class="slip-line">
+                <span>Titik Impas Minimum (BEP)</span>
+                <span id="sim-res-bep" style="font-weight: 600; color:var(--color-tertiary);">12 pcs</span>
+              </div>
+            </div>
+
+            <div id="sim-status-box" class="notice-box" style="margin-bottom: 0;">
+              <!-- Dynamic status message -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         VIEW 7: DOKUMEN PRD LENGKAP DENGAN STYLING BAKERY FLOUR
+         ======================================================== -->
+    <section id="view-prd" class="view-panel">
+      <div class="prd-doc-container">
+        <!-- Sidebar Navigation -->
+        <aside class="prd-sidebar">
+          <div class="prd-sidebar-title">DAFTAR ISI DOKUMEN PRD</div>
+          <nav>
+            <ul class="prd-toc">
+              <li><a href="#prd-sec-1">1. Ringkasan</a></li>
+              <li><a href="#prd-sec-2">2. Latar Belakang &amp; Masalah</a></li>
+              <li><a href="#prd-sec-3">3. Tujuan &amp; Metrik</a></li>
+              <li><a href="#prd-sec-4">4. Pengguna</a></li>
+              <li><a href="#prd-sec-5">5. Ruang Lingkup</a></li>
+              <li><a href="#prd-sec-6">6. Istilah &amp; Rumus Hitung</a></li>
+              <li><a href="#prd-sec-7">7. Contoh Perhitungan</a></li>
+              <li><a href="#prd-sec-8">8. Kebutuhan Fungsional</a></li>
+              <li><a href="#prd-sec-9">9. Kebutuhan Non-Fungsional</a></li>
+              <li><a href="#prd-sec-10">10. Teknologi &amp; Font Awesome</a></li>
+              <li><a href="#prd-sec-11">11. Model Data PO</a></li>
+              <li><a href="#prd-sec-12">12. Alur Pengguna PO</a></li>
+              <li><a href="#prd-sec-13">13. Rencana Rilis</a></li>
+              <li><a href="#prd-sec-14">14. Asumsi &amp; Risiko</a></li>
+              <li><a href="#prd-sec-15">15. Pertanyaan Terbuka</a></li>
+              <li><a href="#prd-sec-16">16. Kriteria Penerimaan MVP</a></li>
+              <li><a href="#prd-sec-17" style="font-weight: 700; color: var(--color-tertiary);">17. Daftar 32 Task Baru</a></li>
+            </ul>
+          </nav>
+        </aside>
+
+        <!-- Article Content -->
+        <article class="prd-article">
+          <div class="prd-header">
+            <span class="tag-badge" style="margin-bottom: 8px;">DOKUMEN SPESIFIKASI PRODUK (PRD) VERSI 1.1</span>
+            <h1 style="font-size: 2.5rem; margin-top: 6px; margin-bottom: 8px;">Sistem Perhitungan HPP, Operasional, dan Laba Titip Jual Churros</h1>
+            <p style="color: var(--color-muted); font-size: 0.9rem; margin: 0;">
+              <strong>Versi:</strong> 1.1 (Revisi Transaksi PO, Font Awesome &amp; Tasks) &nbsp;|&nbsp; 
+              <strong>Jenis Usaha:</strong> UMKM Churros Pre-Order &amp; Konsinyasi Warung &nbsp;|&nbsp; 
+              <strong>Tanggal:</strong> 25 Oktober 2026
+            </p>
+          </div>
+
+          <!-- Section 1 -->
+          <section id="prd-sec-1" class="prd-section">
+            <h2>1. Ringkasan</h2>
+            <p>
+              Sistem ini membantu pemilik usaha churros menghitung <strong>HPP (Harga Pokok Produksi)</strong>, <strong>biaya operasional</strong>, dan <strong>laba bersih</strong> dari setiap produksi dan setiap pengantaran. Transaksi kini dikelola berbasis <strong>Purchase Order (PO)</strong> sebagai unit transaksi utama, baik untuk mitra titipan (konsinyasi warung/toko) maupun pesanan langsung dari pelanggan (pre-order).
+            </p>
+            <p>
+              Tujuan utamanya: pemilik tahu dengan pasti <strong>tempat titipan mana yang untung, mana yang rugi</strong>, berapa margin pesanan langsung, serta rekomendasi kuota titipan yang paling menguntungkan.
+            </p>
+          </section>
+
+          <!-- Section 2 -->
+          <section id="prd-sec-2" class="prd-section">
+            <h2>2. Latar Belakang dan Masalah</h2>
+            <ul>
+              <li>Usaha berjalan dengan dua jalur penjualan: penitipan ke warung/toko (konsinyasi) dan pesanan pre-order pelanggan langsung.</li>
+              <li>Pada model titip jual (konsinyasi), tidak semua produk terjual: ada <strong>sisa/retur</strong> yang menjadi kerugian (waste).</li>
+              <li>Setiap mitra bisa punya syarat berbeda (harga setor, komisi, bagi hasil, beli putus, jarak antar, frekuensi setor).</li>
+              <li>Tanpa nomor transaksi tunggal (PO), pencatatan titipan, pembayaran uang muka (DP), pelunasan, dan retur sering tercecer.</li>
+              <li>Tanpa snapshot HPP saat produksi, fluktuasi harga bahan di pasar dapat merusak keakuratan laporan laba transaksi masa lalu.</li>
+            </ul>
+          </section>
+
+          <!-- Section 3 -->
+          <section id="prd-sec-3" class="prd-section">
+            <h2>3. Tujuan dan Metrik Keberhasilan</h2>
+            <div class="table-responsive">
+              <table class="artisan-table">
+                <thead>
+                  <tr>
+                    <th>Tujuan</th>
+                    <th>Metrik</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>HPP per pcs dapat dihitung otomatis dari resep dan harga bahan</td>
+                    <td>HPP terhitung kurang dari 1 menit setelah harga bahan diperbarui</td>
+                  </tr>
+                  <tr>
+                    <td>Transaksi tercatat rapi per PO untuk semua jalur penjualan</td>
+                    <td>Nomor PO otomatis terbuat dan dapat dicari kurang dari 5 detik</td>
+                  </tr>
+                  <tr>
+                    <td>Laba per PO dan per mitra terlihat jelas</td>
+                    <td>Laporan laba estimasi &amp; final tersedia untuk setiap PO</td>
+                  </tr>
+                  <tr>
+                    <td>Mitra dan komponen biaya fleksibel</td>
+                    <td>Tambah atau hapus mitra/biaya tanpa bantuan developer</td>
+                  </tr>
+                  <tr>
+                    <td>Pencatatan titip, terjual, dan sisa mudah</td>
+                    <td>Input satu rekonsiliasi setoran PO kurang dari 1 menit</td>
+                  </tr>
+                  <tr>
+                    <td>Keputusan berbasis data</td>
+                    <td>Rekomendasi mitra paling untung, titik impas (BEP), dan evaluasi retur</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Section 4 -->
+          <section id="prd-sec-4" class="prd-section">
+            <h2>4. Pengguna</h2>
+            <div class="table-responsive">
+              <table class="artisan-table">
+                <thead>
+                  <tr>
+                    <th>Peran</th>
+                    <th>Kebutuhan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Pemilik (admin)</strong></td>
+                    <td>Mengelola semua data, membuat PO, melihat laporan laba estimasi &amp; final, mengatur harga</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Staf/kurir (opsional, fase 2)</strong></td>
+                    <td>Mencatat pengantaran dan pengambilan sisa/setoran di lapangan berbasis nomor PO</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="font-size:0.85rem; color:var(--color-muted); margin-top:8px;">Fase awal difokuskan untuk satu pengguna (pemilik).</p>
+          </section>
+
+          <!-- Section 5 -->
+          <section id="prd-sec-5" class="prd-section">
+            <h2>5. Ruang Lingkup</h2>
+            <p><strong>Termasuk (MVP Versi 1.1):</strong></p>
+            <ul>
+              <li>Master data bahan baku, resep varian produk, dan mitra titipan</li>
+              <li>Perhitungan HPP otomatis per resep dan snapshot HPP saat produksi</li>
+              <li>Pengelolaan biaya operasional (tetap bulanan dan variabel pengantaran)</li>
+              <li><strong>Pengelolaan transaksi berbasis Purchase Order (PO):</strong>
+                <ul>
+                  <li>Nomor PO otomatis (<code>PO-YYYYMM-NNN</code>)</li>
+                  <li>Status PO bertahap: Draft, Dikonfirmasi, Diproduksi, Dikirim, Selesai, Dibatalkan</li>
+                  <li>Pembayaran berjenjang: DP (uang muka) dan Pelunasan</li>
+                </ul>
+              </li>
+              <li>Rekonsiliasi setoran: jumlah terjual, sisa layak retur, dan sisa rusak/dibuang (waste)</li>
+              <li>Perhitungan laba per PO (estimasi dan final), per mitra, dan per periode</li>
+              <li>Dasbor analitik, simulasi <em>What-If</em>, dan ekspor/cetak slip nota konsinyasi</li>
+              <li>Sistem desain Bakery Flour dengan integrasi ikon Font Awesome standar</li>
+            </ul>
+          </section>
+
+          <!-- Section 6 -->
+          <section id="prd-sec-6" class="prd-section">
+            <h2>6. Istilah dan Rumus Perhitungan</h2>
+            
+            <h3>6.1 HPP per pcs</h3>
+            <div class="formula-callout">
+Biaya Bahan per Batch   = Σ (jumlah bahan × harga bahan per satuan)
+Biaya Produksi Langsung = Biaya Bahan + Tenaga Kerja Langsung + Kemasan + Gas/Listrik per batch
+Hasil Efektif           = Jumlah Hasil Jadi (pcs) × (100% − % Susut Produksi)
+HPP per pcs             = Biaya Produksi Langsung ÷ Hasil Efektif
+            </div>
+
+            <h3>6.2 Biaya Operasional</h3>
+            <ul>
+              <li><strong>Operasional tetap</strong> (per bulan): sewa tempat, internet, langganan, penyusutan alat. Dialokasikan per pcs: <code>Biaya Tetap Bulanan ÷ Perkiraan Produksi Bulanan</code>.</li>
+              <li><strong>Operasional variabel</strong>: bensin/ongkos antar, plastik/stiker, biaya admin. Dibebankan per pengantaran PO atau per pcs.</li>
+            </ul>
+
+            <h3>6.3 Skema Titip Jual (Konsinyasi)</h3>
+            <div class="table-responsive">
+              <table class="artisan-table">
+                <thead>
+                  <tr>
+                    <th>Skema</th>
+                    <th>Cara Hitung Pendapatan Pemilik</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Harga setor tetap</strong></td>
+                    <td>Mitra membayar harga setor per pcs terjual; mitra mengatur harga jual sendiri.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Komisi persen</strong></td>
+                    <td>Harga jual konsumen × (100% − komisi mitra).</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Bagi hasil</strong></td>
+                    <td>(Harga jual − HPP) dibagi sesuai persentase kesepakatan.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Beli putus</strong></td>
+                    <td>Mitra membayar seluruh jumlah yang dititip di muka, tanpa hak retur.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>6.4 Perhitungan Laba Konsinyasi Umum</h3>
+            <div class="formula-callout">
+Pendapatan Bersih Mitra = Σ (pcs terjual × pendapatan per pcs sesuai skema)
+Biaya Produk Dititip    = pcs dititip × HPP per pcs
+Biaya Operasional Mitra = ongkos antar + alokasi biaya tetap
+Laba Bersih Mitra       = Pendapatan Bersih − Biaya Produk Dititip − Biaya Operasional Mitra
+Margin (%)              = Laba Bersih ÷ Pendapatan Bersih × 100
+Tingkat Terjual (%)     = pcs terjual ÷ pcs dititip × 100
+            </div>
+
+            <h3>6.5 Titik Impas (BEP) per Mitra</h3>
+            <div class="formula-callout">
+BEP (pcs) = Biaya Operasional Mitra ÷ (Pendapatan per pcs − HPP per pcs)
+            </div>
+
+            <h3>6.6 Laba per PO (Estimasi &amp; Final) — Requirement Baru</h3>
+            <p>Setiap transaksi berjalan di bawah satu nomor PO (<code>PO-YYYYMM-NNN</code>). Laba dihitung dalam dua tahap:</p>
+            
+            <p><strong>A. Estimasi Laba (Sebelum Disetor / Saat PO Dibuat &amp; Dikirim):</strong></p>
+            <div class="formula-callout">
+PO Titip Jual (Mitra):
+Estimasi Omzet  = Σ (pcs dititip × harga setor / tarif skema)
+Beban HPP       = Σ (pcs dititip × HPP snapshot)
+Biaya Ops       = ongkos antar + (pcs dititip × alokasi tetap per pcs)
+Estimasi Laba   = Estimasi Omzet − Beban HPP − Biaya Ops
+
+PO Pelanggan Langsung (Pre-Order):
+Estimasi Omzet  = Σ (pcs pesanan × harga jual konsumen)
+Beban HPP       = Σ (pcs pesanan × HPP snapshot)
+Biaya Ops       = ongkos antar / delivery aktual
+Estimasi Laba   = Estimasi Omzet − Beban HPP − Biaya Ops
+            </div>
+
+            <p><strong>B. Laba Final (Sesudah Rekonsiliasi Setoran &amp; Pengiriman Selesai):</strong></p>
+            <div class="formula-callout">
+PO Titip Jual (Mitra):
+Omzet Realisasi = Σ (pcs terjual × pendapatan per pcs sesuai skema)
+Beban HPP Final = (pcs dititip − pcs sisa kembali layak) × HPP snapshot
+Biaya Ops Final = ongkos antar aktual + (pcs dititip × alokasi tetap)
+Laba Final      = Omzet Realisasi − Beban HPP Final − Biaya Ops Final
+Margin Final    = (Laba Final ÷ Omzet Realisasi) × 100
+
+PO Pelanggan Langsung (Pre-Order):
+Omzet Realisasi = Total pembayaran diterima (DP + Pelunasan)
+Beban HPP Final = Σ (pcs diserahterimakan × HPP snapshot)
+Biaya Ops Final = ongkos kirim / transportasi aktual
+Laba Final      = Omzet Realisasi − Beban HPP Final − Biaya Ops Final
+            </div>
+            <p style="font-size:0.85rem; color:var(--color-muted);"><em>Catatan:</em> Sisa yang rusak atau kedaluwarsa (waste) tidak dapat dijual kembali sehingga HPP-nya tetap menjadi beban kerugian pemilik.</p>
+          </section>
+
+          <!-- Section 7 -->
+          <section id="prd-sec-7" class="prd-section">
+            <h2>7. Contoh Perhitungan (Ilustrasi Acuan)</h2>
+
+            <h3>7.1 Produksi Satu Batch (50 pcs)</h3>
+            <div class="table-responsive">
+              <table class="artisan-table">
+                <thead>
+                  <tr>
+                    <th>Komponen</th>
+                    <th class="table-num">Biaya</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Bahan (tepung, telur, mentega, gula, kayu manis, minyak)</td>
+                    <td class="table-num">Rp 100.000</td>
+                  </tr>
+                  <tr>
+                    <td>Saus/topping cokelat</td>
+                    <td class="table-num">Rp 30.000</td>
+                  </tr>
+                  <tr>
+                    <td>Kemasan (50 pcs × Rp 500)</td>
+                    <td class="table-num">Rp 25.000</td>
+                  </tr>
+                  <tr>
+                    <td>Gas dan listrik</td>
+                    <td class="table-num">Rp 10.000</td>
+                  </tr>
+                  <tr>
+                    <td>Tenaga kerja langsung</td>
+                    <td class="table-num">Rp 35.000</td>
+                  </tr>
+                  <tr style="background-color: var(--color-neutral); font-weight: 700;">
+                    <td>Total Produksi Langsung</td>
+                    <td class="table-num">Rp 200.000</td>
+                  </tr>
+                  <tr style="font-weight: 700; color: var(--color-tertiary);">
+                    <td>HPP per pcs</td>
+                    <td class="table-num">Rp 4.000</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>7.2 Contoh 1: PO Titip Jual ke Warung A (<code>PO-202610-001</code>)</h3>
+            <p>Titip 20 pcs churros original, harga setor Rp 6.000/pcs, terjual 16 pcs, sisa 4 pcs retur, ongkos antar Rp 5.000.</p>
+            <ul>
+              <li>Omzet realisasi: 16 × Rp 6.000 = Rp 96.000</li>
+              <li>Beban produk dititip (HPP snapshot): 20 × Rp 4.000 = Rp 80.000</li>
+              <li>Biaya operasional antar: Rp 5.000</li>
+              <li><strong>Laba bersih PO Warung A: Rp 11.000</strong> (margin 11,5%)</li>
+              <li>Tingkat terjual: 80% (16 / 20 pcs)</li>
+            </ul>
+
+            <h3>7.3 Contoh 2: PO Pelanggan Langsung (<code>PO-202610-002</code>)</h3>
+            <p>Pesanan acara kantor Pak Budi, 10 box Churros Chocolate Melted Dip (total 50 pcs). Harga jual Rp 10.000/box, DP Rp 50.000, pelunasan Rp 50.000.</p>
+            <ul>
+              <li>Total omzet diterima: Rp 100.000</li>
+              <li>Beban HPP produksi: 10 box × Rp 4.800 = Rp 48.000</li>
+              <li>Biaya operasional antar (kurir): Rp 15.000</li>
+              <li><strong>Laba bersih PO Langsung: Rp 37.000</strong> (margin 37,0%)</li>
+            </ul>
+
+            <div class="notice-box">
+              <div style="font-size: 1.1rem;"><i class="fa-solid fa-scale-balanced icon-tertiary"></i></div>
+              <div>
+                <strong>Perbandingan Nyata:</strong> PO titip ke warung untung <strong>Rp 11.000</strong> karena menanggung risiko retur dan harga grosir. PO langsung untung <strong>Rp 37.000</strong> dengan harga retail konsumen penuh.
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 8 -->
+          <section id="prd-sec-8" class="prd-section">
+            <h2>8. Kebutuhan Fungsional (Terbaru)</h2>
+            <p>Prioritas: <span class="priority-tag priority-p0">P0</span> Wajib MVP, <span class="priority-tag priority-p1">P1</span> Penting, <span class="priority-tag priority-p2">P2</span> Nanti.</p>
+
+            <h3>8.5 Transaksi Berbasis Purchase Order (PO) <span class="priority-tag priority-p0">P0</span></h3>
+            <ul>
+              <li><strong>FR-14:</strong> Nomor PO dibuat otomatis dengan format <code>PO-YYYYMM-NNN</code>.</li>
+              <li><strong>FR-15:</strong> PO menjadi unit transaksi utama untuk mitra titipan dan pelanggan langsung.</li>
+              <li><strong>FR-16:</strong> Status PO berjalan dari <code>Draft</code>, <code>Dikonfirmasi</code>, <code>Diproduksi</code>, <code>Dikirim</code>, hingga <code>Selesai</code>, atau <code>Dibatalkan</code>.</li>
+              <li><strong>FR-17:</strong> HPP disimpan sebagai snapshot saat produksi sehingga tidak terpengaruh kenaikan harga bahan di masa depan.</li>
+              <li><strong>FR-18:</strong> Pembayaran (DP uang muka dan pelunasan) dicatat langsung pada nomor PO.</li>
+              <li><strong>FR-19:</strong> Pengantaran dan setoran (jumlah terjual, sisa kembali, sisa rusak) dicatat dan terekonsiliasi di PO.</li>
+              <li><strong>FR-20:</strong> Validasi: terjual + sisa kembali + sisa dibuang tidak boleh melebihi jumlah titip.</li>
+            </ul>
+          </section>
+
+          <!-- Section 10 -->
+          <section id="prd-sec-10" class="prd-section">
+            <h2>10. Teknologi &amp; Font Awesome</h2>
+
+            <h3>10.1 Migrasi Ikon ke Font Awesome (Requirement Baru)</h3>
+            <p>Ketentuan migrasi ikon pada sistem:</p>
+            <ol>
+              <li><strong>Satu Komponen Icon:</strong> Seluruh pemanggilan ikon dilakukan melalui satu komponen wrapper (<code>renderIcon(name, options)</code>).</li>
+              <li><strong>Ikon Diimpor Satu per Satu:</strong> Registri ikon eksplisit untuk tree-shaking dan kecepatan muat.</li>
+              <li><strong>Aksesibilitas:</strong> Dilengkapi <code>aria-hidden="true"</code> dan kelas <code>.sr-only</code> untuk pembaca layar.</li>
+              <li><strong>Kepatuhan Token DESIGN.md:</strong> Warna ikon wajib mematuhi palet Primary, Secondary, Tertiary, Muted, dan Error.</li>
+            </ol>
+
+            <div class="table-responsive" style="margin-top: 14px;">
+              <table class="artisan-table">
+                <thead>
+                  <tr>
+                    <th>Fungsi / Lokasi</th>
+                    <th>Nama Ikon Font Awesome</th>
+                    <th>Keterangan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Navigasi Dasbor</td>
+                    <td><code>fa-chart-pie</code></td>
+                    <td>Statistik performa, margin, dan peringkat mitra</td>
+                  </tr>
+                  <tr>
+                    <td>Navigasi Resep &amp; HPP</td>
+                    <td><code>fa-mortar-pestle</code> / <code>fa-wheat-awn</code></td>
+                    <td>Formulasi bahan baku &amp; kalkulasi HPP churros</td>
+                  </tr>
+                  <tr>
+                    <td>Navigasi Transaksi &amp; PO</td>
+                    <td><code>fa-receipt</code></td>
+                    <td>Pengelolaan dokumen Purchase Order dan setoran</td>
+                  </tr>
+                  <tr>
+                    <td>Navigasi Mitra Warung</td>
+                    <td><code>fa-shop</code></td>
+                    <td>Master mitra toko konsinyasi</td>
+                  </tr>
+                  <tr>
+                    <td>Navigasi Bahan &amp; Biaya</td>
+                    <td><code>fa-boxes-stacked</code></td>
+                    <td>Inventaris bahan baku dan biaya tetap bulanan</td>
+                  </tr>
+                  <tr>
+                    <td>Simulasi Laba</td>
+                    <td><code>fa-sliders</code></td>
+                    <td>Kontrol parameter skenario What-If</td>
+                  </tr>
+                  <tr>
+                    <td>Dokumen PRD</td>
+                    <td><code>fa-book-bookmark</code></td>
+                    <td>Pembaca dokumen spesifikasi produk</td>
+                  </tr>
+                  <tr>
+                    <td>Tambah Data Baru</td>
+                    <td><code>fa-plus</code></td>
+                    <td>Tombol tambah bahan, resep, mitra, atau PO baru</td>
+                  </tr>
+                  <tr>
+                    <td>Ubah / Edit Data</td>
+                    <td><code>fa-pen-to-square</code></td>
+                    <td>Mengubah takaran resep, data mitra, atau PO</td>
+                  </tr>
+                  <tr>
+                    <td>Hapus Data</td>
+                    <td><code>fa-trash-can</code></td>
+                    <td>Menghapus / mengarsipkan baris data</td>
+                  </tr>
+                  <tr>
+                    <td>Rekonsiliasi &amp; Pembayaran</td>
+                    <td><code>fa-hand-holding-dollar</code></td>
+                    <td>Penerimaan setoran uang dan pelunasan nota</td>
+                  </tr>
+                  <tr>
+                    <td>Cetak Slip Fisik</td>
+                    <td><code>fa-print</code></td>
+                    <td>Mencetak slip tanda terima &amp; surat jalan PO</td>
+                  </tr>
+                  <tr>
+                    <td>Status Sukses / Untung</td>
+                    <td><code>fa-circle-check</code></td>
+                    <td>Indikator PO selesai, lunas, atau warung untung</td>
+                  </tr>
+                  <tr>
+                    <td>Status Peringatan / Rugi</td>
+                    <td><code>fa-triangle-exclamation</code></td>
+                    <td>Peringatan sisa waste tinggi atau proyeksi rugi</td>
+                  </tr>
+                  <tr>
+                    <td>Status Pending / Draft</td>
+                    <td><code>fa-clock</code></td>
+                    <td>Indikator PO draft atau menunggu rekonsiliasi</td>
+                  </tr>
+                  <tr>
+                    <td>Pengiriman / Pengantaran</td>
+                    <td><code>fa-truck-fast</code></td>
+                    <td>Pengantaran pesanan churros ke lokasi klien</td>
+                  </tr>
+                  <tr>
+                    <td>Simpan Cadangan (Backup)</td>
+                    <td><code>fa-floppy-disk</code></td>
+                    <td>Ekspor berkas cadangan JSON</td>
+                  </tr>
+                  <tr>
+                    <td>Pulihkan Data (Restore)</td>
+                    <td><code>fa-folder-open</code></td>
+                    <td>Impor data dari berkas JSON</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Section 11 -->
+          <section id="prd-sec-11" class="prd-section">
+            <h2>11. Model Data (Garis Besar PO)</h2>
+            <div class="table-responsive">
+              <table class="artisan-table">
+                <thead>
+                  <tr>
+                    <th>Entitas</th>
+                    <th>Atribut Utama</th>
+                    <th>Keterangan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>PO</strong></td>
+                    <td><code>id, no_po, jenis_po, mitra_id, nama_pelanggan, kontak, alamat, tanggal_order, tanggal_kirim, status, ongkos_kirim</code></td>
+                    <td>Unit transaksi utama (<code>PO-YYYYMM-NNN</code>), status: Draft s.d. Selesai</td>
+                  </tr>
+                  <tr>
+                    <td><strong>POItem</strong></td>
+                    <td><code>id, po_id, produk_id, qty_pesan, hpp_snapshot, harga_satuan</code></td>
+                    <td>Item pesanan churros dengan snapshot HPP terkunci</td>
+                  </tr>
+                  <tr>
+                    <td><strong>PORekonsiliasi</strong></td>
+                    <td><code>po_id, qty_terjual, qty_sisa_kembali, qty_sisa_rusak, tanggal_setor</code></td>
+                    <td>Hasil fisik penjualan &amp; retur konsinyasi di warung</td>
+                  </tr>
+                  <tr>
+                    <td><strong>POPembayaran</strong></td>
+                    <td><code>id, po_id, tahap (DP / Pelunasan), nominal, tanggal, metode</code></td>
+                    <td>Riwayat pembayaran berjenjang per PO</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Section 12 -->
+          <section id="prd-sec-12" class="prd-section">
+            <h2>12. Alur Pengguna Utama Berbasis PO</h2>
+            <ol>
+              <li><strong>Buat PO Baru:</strong> Pemilik memilih tipe PO (Mitra Titipan atau Pelanggan Langsung), nomor otomatis terbuat (<code>PO-YYYYMM-NNN</code>).</li>
+              <li><strong>Konfirmasi &amp; DP:</strong> Catat konfirmasi dan pembayaran uang muka (DP) bila ada.</li>
+              <li><strong>Produksi &amp; Kunci HPP:</strong> Saat produksi berjalan, sistem mengunci snapshot HPP terkini.</li>
+              <li><strong>Pengantaran (Dikirim):</strong> Cetak surat jalan / slip PO pengantaran untuk diserahkan ke warung atau pelanggan.</li>
+              <li><strong>Rekonsiliasi &amp; Pelunasan:</strong> Saat setoran diambil, catat jumlah terjual, sisa retur, sisa waste, dan pelunasan dana.</li>
+              <li><strong>Hitung Laba Final:</strong> Laba bersih final terhitung dan masuk ke dasbor evaluasi mitra.</li>
+            </ol>
+          </section>
+
+          <!-- Section 17: Interactive 32 Tasks Checklist -->
+          <section id="prd-sec-17" class="prd-section" style="border-top: 2px solid var(--color-tertiary); padding-top: 24px;">
+            <h2>17. Daftar 32 Task Baru (Implementasi Terstruktur)</h2>
+            <p>
+              Seluruh 32 task berikut telah dikelompokkan menjadi <strong>Transaksi PO (T-01 s.d. T-19)</strong>, <strong>Font Awesome (T-20 s.d. T-30)</strong>, dan <strong>Gaya Form/Select (T-31, T-32)</strong>. Anda dapat mencentang status pengerjaan secara langsung pada daftar di bawah:
+            </p>
+
+            <div id="prd-task-checklist-container">
+              <!-- Dynamically populated via JS with state persistence -->
+            </div>
+          </section>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================
+       MODALS & DIALOGS
+       ======================================================== -->
+
+  <!-- Modal 1: Purchase Order (PO) Baru -->
+  <div id="modal-po" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-receipt icon-tertiary" aria-hidden="true"></i> &nbsp;Buat Purchase Order (PO) Baru</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-po')" title="Tutup"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-po" onsubmit="savePo(event)">
+        <div class="modal-body">
+          <input type="hidden" id="po-id">
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">NOMOR PO (OTOMATIS) <span class="required-mark">*</span></label>
+              <input type="text" id="po-nomor" class="form-input" readonly style="background-color: var(--color-neutral); font-weight: 700;">
+            </div>
+            <div class="form-field">
+              <label class="form-label">JENIS TRANSAKSI PO <span class="required-mark">*</span></label>
+              <div class="select-wrapper">
+                <select id="po-jenis" class="form-select" onchange="togglePoJenisFields()">
+                  <option value="titip_mitra">Mitra Titipan (Konsinyasi Warung)</option>
+                  <option value="pelanggan_langsung">Pelanggan Langsung (Pre-Order)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Jalur 1: Mitra Warung Block -->
+          <div id="po-warung-block" class="form-field">
+            <label class="form-label">PILIH MITRA WARUNG / TOKO <span class="required-mark">*</span></label>
+            <div class="select-wrapper">
+              <select id="po-mitra" class="form-select" onchange="onPoMitraSelected()">
+                <!-- Options via JS -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Jalur 2: Pelanggan Langsung Block -->
+          <div id="po-pelanggan-block" style="display: none;">
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">NAMA LENGKAP PELANGGAN <span class="required-mark">*</span></label>
+                <input type="text" id="po-cust-nama" class="form-input" placeholder="cth. Pak Budi (Arisan Kantor)">
+              </div>
+              <div class="form-field">
+                <label class="form-label">KONTAK / WHATSAPP</label>
+                <input type="text" id="po-cust-kontak" class="form-input" placeholder="cth. 0812-3344-5566">
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">ALAMAT PENGIRIMAN</label>
+              <input type="text" id="po-cust-alamat" class="form-input" placeholder="cth. Menara Sudirman Lt. 8">
+            </div>
+            <div class="form-field">
+              <label class="form-label">HARGA JUAL KONSUMEN PER PCS/BOX (RP) <span class="required-mark">*</span></label>
+              <input type="number" id="po-harga-satuan" class="form-input" value="10000" min="0" oninput="updatePoModalEstimates()">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">TANGGAL ORDER <span class="required-mark">*</span></label>
+              <input type="date" id="po-tgl-order" class="form-input" required>
+            </div>
+            <div class="form-field">
+              <label class="form-label">TANGGAL PENGIRIMAN <span class="required-mark">*</span></label>
+              <input type="date" id="po-tgl-kirim" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">PILIH VARIAN RESEP CHURROS <span class="required-mark">*</span></label>
+              <div class="select-wrapper">
+                <select id="po-produk" class="form-select" onchange="updatePoModalEstimates()" required>
+                  <!-- Options via JS -->
+                </select>
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">STATUS AWAL PO <span class="required-mark">*</span></label>
+              <div class="select-wrapper">
+                <select id="po-status" class="form-select">
+                  <option value="Draft">Draft</option>
+                  <option value="Dikonfirmasi" selected>Dikonfirmasi</option>
+                  <option value="Diproduksi">Diproduksi (Kunci HPP Snapshot)</option>
+                  <option value="Dikirim">Dikirim</option>
+                  <option value="Selesai">Selesai</option>
+                  <option value="Dibatalkan">Dibatalkan</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">JUMLAH PCS / BOX <span class="required-mark">*</span></label>
+              <input type="number" id="po-qty" class="form-input" placeholder="cth. 20" min="1" oninput="updatePoModalEstimates()" required>
+            </div>
+            <div class="form-field">
+              <label class="form-label">ONGKOS KIRIM / ANTAR (RP)</label>
+              <input type="number" id="po-ongkos" class="form-input" placeholder="cth. 5000" min="0" oninput="updatePoModalEstimates()" value="5000">
+            </div>
+          </div>
+
+          <!-- Pembayaran DP Awal -->
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">UANG MUKA / DP AWAL (RP)</label>
+              <input type="number" id="po-dp-nominal" class="form-input" placeholder="cth. 50000" min="0">
+              <span class="form-helper">Kosongkan jika belum ada pembayaran uang muka.</span>
+            </div>
+            <div class="form-field">
+              <label class="form-label">METODE PEMBAYARAN DP</label>
+              <div class="select-wrapper">
+                <select id="po-dp-metode" class="form-select">
+                  <option value="Transfer BCA">Transfer BCA</option>
+                  <option value="QRIS">QRIS</option>
+                  <option value="Tunai">Tunai / Cash</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Estimation Slip in Modal (PRD Section 6.6 A) -->
+          <div class="order-slip-card" style="margin-top: 4px;">
+            <div class="slip-header">
+              <div class="slip-title">ESTIMASI KEUANGAN PO (SEBELUM SETOR)</div>
+              <div class="slip-meta">FORMULA BAGIAN 6.6 A PRD</div>
+            </div>
+            <div class="slip-line">
+              <span>HPP Snapshot Produk (per unit)</span>
+              <strong id="po-preview-hpp">Rp 0</strong>
+            </div>
+            <div class="slip-line">
+              <span>Proyeksi Omzet Pendapatan</span>
+              <span id="po-preview-omzet">Rp 0</span>
+            </div>
+            <div class="slip-line total-line">
+              <span>PROYEKSI ESTIMASI LABA</span>
+              <span id="po-preview-laba">Rp 0</span>
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-top: 16px;">
+            <label class="form-label">CATATAN PO</label>
+            <input type="text" id="po-catatan" class="form-input" placeholder="cth. Pesanan minta dikirim sebelum jam 10 pagi.">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-text" onclick="closeModal('modal-po')">Batal</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            <span>Simpan Purchase Order</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Rekonsiliasi & Pelunasan Setoran PO -->
+  <div id="modal-rekonsiliasi" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-hand-holding-dollar icon-tertiary" aria-hidden="true"></i> &nbsp;Rekonsiliasi &amp; Pelunasan PO</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-rekonsiliasi')" title="Tutup"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-rekonsiliasi" onsubmit="saveRekonsiliasi(event)">
+        <div class="modal-body">
+          <input type="hidden" id="rekon-po-id">
+
+          <!-- Info Ringkasan PO -->
+          <div style="background-color: var(--color-neutral); padding: 12px 18px; border-radius: var(--radius-md); border: 1px solid var(--color-outline); margin-bottom: 20px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <span class="hero-meta-label">NO. PO</span><br>
+              <strong id="rekon-info-nopo">-</strong>
+            </div>
+            <div>
+              <span class="hero-meta-label">KLIEN / MITRA</span><br>
+              <strong id="rekon-info-client">-</strong>
+            </div>
+            <div>
+              <span class="hero-meta-label">VARIAN</span><br>
+              <span id="rekon-info-produk">-</span>
+            </div>
+            <div>
+              <span class="hero-meta-label">PESANAN AWAL</span><br>
+              <strong id="rekon-info-qty" style="color: var(--color-tertiary); font-size: 1.1rem;">-</strong>
+            </div>
+            <div>
+              <span class="hero-meta-label">HPP SNAPSHOT</span><br>
+              <strong id="rekon-info-hpp">-</strong>
+            </div>
+          </div>
+
+          <div id="rekon-validation-warn" class="form-error" style="display:none; margin-bottom: 16px;"></div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">UPDATE STATUS PO <span class="required-mark">*</span></label>
+              <div class="select-wrapper">
+                <select id="rekon-status-po" class="form-select">
+                  <option value="Selesai" selected>Selesai (Rekonsiliasi Final)</option>
+                  <option value="Dikirim">Dikirim (Masih Berjalan)</option>
+                  <option value="Dikonfirmasi">Dikonfirmasi</option>
+                  <option value="Dibatalkan">Dibatalkan</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">JUMLAH TERJUAL / DITERIMA (PCS) <span class="required-mark">*</span></label>
+              <input type="number" id="rekon-terjual" class="form-input" min="0" oninput="updateRekonsiliasiCalc()" required>
+            </div>
+          </div>
+
+          <!-- Retur row for consignment -->
+          <div id="rekon-retur-row" class="form-row">
+            <div class="form-field">
+              <label class="form-label">SISA KEMBALI LAYAK (PCS)</label>
+              <input type="number" id="rekon-sisa-kembali" class="form-input" min="0" oninput="updateRekonsiliasiCalc()" value="0">
+              <span class="form-helper">Dapat dijual kembali</span>
+            </div>
+            <div class="form-field">
+              <label class="form-label">SISA RUSAK / WASTE (PCS)</label>
+              <input type="number" id="rekon-sisa-buang" class="form-input" min="0" oninput="updateRekonsiliasiCalc()" value="0">
+              <span class="form-helper">Dibuang (kerugian HPP)</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label">HARGA SATUAN JUAL / SETOR ACUAN (RP)</label>
+            <input type="number" id="rekon-harga-satuan" class="form-input" min="0" oninput="updateRekonsiliasiCalc()">
+          </div>
+
+          <!-- Section Pembayaran Tambahan / Pelunasan -->
+          <div style="background-color: var(--color-surface); border: 1px solid var(--color-outline); border-radius: var(--radius-md); padding: 16px; margin: 16px 0;">
+            <div style="font-weight: 600; font-size: 0.92rem; margin-bottom: 8px; display: flex; justify-content: space-between;">
+              <span>Pembayaran &amp; Pelunasan Dana</span>
+              <span>Sudah Masuk: <strong id="rekon-sudah-dibayar">Rp 0</strong></span>
+            </div>
+            <div class="form-row">
+              <div class="form-field" style="margin-bottom: 0;">
+                <label class="form-label">TAMBAH PEMBAYARAN SEKARANG (RP)</label>
+                <input type="number" id="rekon-tambah-bayar" class="form-input" placeholder="cth. 50000" min="0" oninput="updateRekonsiliasiCalc()">
+              </div>
+              <div class="form-field" style="margin-bottom: 0;">
+                <label class="form-label">METODE PEMBAYARAN</label>
+                <div class="select-wrapper">
+                  <select id="rekon-metode-bayar" class="form-select">
+                    <option value="Tunai">Tunai / Cash</option>
+                    <option value="Transfer BCA">Transfer BCA</option>
+                    <option value="QRIS">QRIS</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-time calculation slip in modal (PRD Section 6.6 B) -->
+          <div class="order-slip-card" style="margin-top: 10px;">
+            <div class="slip-header">
+              <div class="slip-title">HASIL LABA BERSIH FINAL PO</div>
+              <div class="slip-meta">FORMULA BAGIAN 6.6 B PRD</div>
+            </div>
+            <div class="slip-line">
+              <span>Omzet Realisasi</span>
+              <span id="rekon-calc-omzet">Rp 0</span>
+            </div>
+            <div class="slip-line">
+              <span>Beban HPP Final (Terjual + Waste)</span>
+              <span id="rekon-calc-beban-hpp" style="color:var(--color-muted);">Rp 0</span>
+            </div>
+            <div class="slip-line">
+              <span>Biaya Operasional (Antar + Beban Tetap)</span>
+              <span id="rekon-calc-ops" style="color:var(--color-muted);">Rp 0</span>
+            </div>
+            <div class="slip-line total-line">
+              <span>LABA BERSIH FINAL DARI PO INI</span>
+              <span id="rekon-calc-laba" style="font-size: 1.25rem;">Rp 0</span>
+            </div>
+            <div class="slip-line">
+              <span>Sisa Piutang Belum Lunas</span>
+              <strong id="rekon-calc-piutang" style="color:var(--color-tertiary);">Rp 0</strong>
+            </div>
+          </div>
+
+          <div class="form-field" style="margin-top: 16px;">
+            <label class="form-label">CATATAN REKONSILIASI</label>
+            <input type="text" id="rekon-catatan" class="form-input" placeholder="cth. Pelunasan via transfer, titipan berikutnya ditambah 5 pcs.">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-text" onclick="closeModal('modal-rekonsiliasi')">Batal</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check" aria-hidden="true"></i>
+            <span>Simpan Rekonsiliasi &amp; Laba</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Slip PO / Surat Jalan Siap Cetak (Bakery Order Slip) -->
+  <div id="modal-slip" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-print icon-tertiary" aria-hidden="true"></i> &nbsp;Slip Bukti Purchase Order</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-slip')" title="Tutup"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="order-slip-card" id="printable-order-slip">
+          <div class="slip-header">
+            <div class="slip-title">CHURROS ARTISAN BAKERY</div>
+            <div class="slip-meta">SURAT JALAN &amp; SLIP REKONSILIASI PO</div>
+            <div style="font-size: 0.85rem; margin-top: 4px; color: var(--color-secondary);">
+              No. PO: <strong id="slip-no-po" style="color:var(--color-primary);">PO-000000</strong> &nbsp;|&nbsp; 
+              Tgl: <span id="slip-tgl-order">-</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 12px; font-size: 0.88rem;">
+            <div><strong>Penerima / Mitra:</strong> <span id="slip-client-nama">-</span></div>
+            <div style="color: var(--color-muted); font-size: 0.8rem;"><span id="slip-client-alamat">-</span> (<span id="slip-client-kontak">-</span>)</div>
+          </div>
+
+          <div class="slip-line">
+            <span>Varian Produk</span>
+            <span id="slip-produk-nama">-</span>
+          </div>
+          <div class="slip-line">
+            <span>Jumlah Pesanan / Titip</span>
+            <strong id="slip-titip-pcs">0 pcs</strong>
+          </div>
+          <div class="slip-line">
+            <span>Jumlah Terjual / Diterima</span>
+            <strong id="slip-terjual-pcs">0 pcs</strong>
+          </div>
+          <div class="slip-line">
+            <span>Sisa Produk</span>
+            <span id="slip-sisa-pcs">0 pcs</span>
+          </div>
+          <div class="slip-line">
+            <span>Nilai Omzet Penjualan</span>
+            <strong id="slip-omzet">Rp 0</strong>
+          </div>
+          <div class="slip-line">
+            <span>Laba Bersih Diperoleh</span>
+            <span id="slip-laba">Rp 0</span>
+          </div>
+          <div class="slip-line total-line">
+            <span>STATUS PO &amp; BAYAR</span>
+            <span id="slip-status-po">-</span>
+          </div>
+          <div class="slip-line">
+            <span>Total Sudah Dibayar</span>
+            <span id="slip-terbayar">Rp 0</span>
+          </div>
+          <div class="slip-line">
+            <span>Sisa Piutang</span>
+            <strong id="slip-sisa-piutang" style="color:var(--color-tertiary);">Rp 0</strong>
+          </div>
+
+          <div style="margin-top: 24px; display: flex; justify-content: space-between; text-align: center; font-size: 0.78rem; color: var(--color-muted);">
+            <div style="width: 45%;">
+              Tanda Terima Penerima<br><br><br>
+              ( ..................................... )
+            </div>
+            <div style="width: 45%;">
+              Pengantar / Pemilik Churros<br><br><br>
+              ( ..................................... )
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="printOrderSlip()">
+          <i class="fa-solid fa-print" aria-hidden="true"></i>
+          <span>Cetak Slip</span>
+        </button>
+        <button type="button" class="btn btn-primary" onclick="closeModal('modal-slip')">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Bahan Baku -->
+  <div id="modal-bahan" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-bahan-title">Tambah Bahan Baku Baru</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-bahan')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-bahan" onsubmit="saveBahan(event)">
+        <div class="modal-body">
+          <input type="hidden" id="bahan-id">
+          
+          <div class="form-field">
+            <label class="form-label">NAMA BAHAN BAKU <span class="required-mark">*</span></label>
+            <input type="text" id="bahan-nama" class="form-input" placeholder="cth. Tepung Terigu Protein Sedang" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">SATUAN BELI <span class="required-mark">*</span></label>
+              <input type="text" id="bahan-satuan-beli" class="form-input" placeholder="cth. kg / liter / butir" required>
+            </div>
+            <div class="form-field">
+              <label class="form-label">HARGA BELI PER SATUAN (RP) <span class="required-mark">*</span></label>
+              <input type="number" id="bahan-harga-beli" class="form-input" placeholder="cth. 12000" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">SATUAN RESEP <span class="required-mark">*</span></label>
+              <input type="text" id="bahan-satuan-resep" class="form-input" placeholder="cth. gram / ml / butir" required>
+            </div>
+            <div class="form-field">
+              <label class="form-label">RASIO KONVERSI (1 SATUAN BELI = ... SATUAN RESEP) <span class="required-mark">*</span></label>
+              <input type="number" id="bahan-rasio" class="form-input" placeholder="cth. 1000 untuk 1kg = 1000g" min="1" value="1000" required>
+            </div>
+          </div>
+          <p class="form-helper">Harga per satuan resep akan dihitung otomatis saat resep churros dikalkulasikan.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-text" onclick="closeModal('modal-bahan')">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan Bahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 5: Resep Produk -->
+  <div id="modal-resep" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width: 780px;">
+      <div class="modal-header">
+        <h3 id="modal-resep-title">Buat Resep Churros Baru</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-resep')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-resep" onsubmit="saveRecipe(event)">
+        <div class="modal-body">
+          <input type="hidden" id="resep-id">
+
+          <div class="form-field">
+            <label class="form-label">NAMA PRODUK / VARIAN CHURROS <span class="required-mark">*</span></label>
+            <input type="text" id="resep-nama" class="form-input" placeholder="cth. Churros Cinnamon Sugar Klasik" required>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label">DESKRIPSI VARIAN</label>
+            <textarea id="resep-deskripsi" class="form-textarea" placeholder="cth. Churros renyah dengan aroma kayu manis khas." style="min-height: 80px;"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">HASIL JADI BATCH (PCS) <span class="required-mark">*</span></label>
+              <input type="number" id="resep-hasil-batch" class="form-input" value="50" min="1" oninput="updateModalHppPreview()" required>
+            </div>
+            <div class="form-field">
+              <label class="form-label">PERSENTASE SUSUT / GAGAL GORENG (%) <span class="required-mark">*</span></label>
+              <input type="number" id="resep-susut" class="form-input" value="3" min="0" max="50" oninput="updateModalHppPreview()" required>
+            </div>
+          </div>
+
+          <!-- Komposisi Bahan -->
+          <div style="margin: 20px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label class="form-label" style="margin: 0;">KOMPOSISI BAHAN BAKU PER BATCH</label>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addRecipeBahanRow()">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> <span>Baris Bahan</span>
+              </button>
+            </div>
+            <div id="resep-bahan-rows">
+              <!-- Dynamically added -->
+            </div>
+          </div>
+
+          <!-- Biaya Lain Per Batch -->
+          <div style="margin: 20px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <label class="form-label" style="margin: 0;">BIAYA LAIN PER BATCH (KEMASAN, GAS, UPAH)</label>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addRecipeBiayaLainRow()">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> <span>Baris Biaya</span>
+              </button>
+            </div>
+            <div id="resep-biayalain-rows">
+              <!-- Dynamically added -->
+            </div>
+          </div>
+
+          <!-- Live HPP Preview Box in Modal -->
+          <div class="stat-slip highlight-stat" style="margin-top: 16px; display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+            <div>
+              <div class="stat-label">HPP POKOK TERHITUNG</div>
+              <div class="stat-value" id="modal-preview-hpp" style="font-size: 2rem;">Rp 0</div>
+              <div class="stat-desc">Biaya Produksi Langsung: <span id="modal-preview-produksi">Rp 0</span></div>
+            </div>
+            <div style="text-align: right; font-size: 0.85rem; color: var(--color-muted);">
+              Otomatis tersimpan &amp;<br>terupdate di semua tabel.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-text" onclick="closeModal('modal-resep')">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan Resep &amp; HPP</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 6: Mitra Titipan -->
+  <div id="modal-mitra" class="modal-backdrop">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-mitra-title">Tambah Mitra Titip Jual (Warung/Toko)</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-mitra')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-mitra" onsubmit="saveMitra(event)">
+        <div class="modal-body">
+          <input type="hidden" id="mitra-id">
+
+          <div class="form-field">
+            <label class="form-label">NAMA MITRA WARUNG / TOKO <span class="required-mark">*</span></label>
+            <input type="text" id="mitra-nama" class="form-input" placeholder="cth. Warung Pojok Bu Sri" required>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label">ALAMAT LENGKAP <span class="required-mark">*</span></label>
+            <input type="text" id="mitra-alamat" class="form-input" placeholder="cth. Jl. Melati No. 12 (Dekat Pasar)" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">KONTAK / WHATSAPP <span class="required-mark">*</span></label>
+              <input type="text" id="mitra-kontak" class="form-input" placeholder="cth. 0812-3456-7890" required>
+            </div>
+            <div class="form-field">
+              <label class="form-label">ONGKOS ANTAR STANDAR (RP) <span class="required-mark">*</span></label>
+              <input type="number" id="mitra-ongkos" class="form-input" placeholder="cth. 5000" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-label">SKEMA KERJASAMA <span class="required-mark">*</span></label>
+              <div class="select-wrapper">
+                <select id="mitra-skema" class="form-select" onchange="updateMitraSkemaHint()">
+                  <option value="harga_setor">Harga Setor Tetap (Rp)</option>
+                  <option value="komisi">Komisi Persen (%)</option>
+                  <option value="bagi_hasil">Bagi Hasil Pemilik (%)</option>
+                  <option value="beli_putus">Beli Putus (Rp)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-field">
+              <label id="mitra-nilai-label" class="form-label">NILAI SKEMA (RP / %) <span class="required-mark">*</span></label>
+              <input type="number" id="mitra-nilai" class="form-input" placeholder="cth. 6000" required>
+            </div>
+          </div>
+          <p id="mitra-nilai-hint" class="form-helper" style="margin-top: -12px; margin-bottom: 16px;">
+            Nominal rupiah pasti yang diterima pemilik setiap pcs terjual.
+          </p>
+
+          <div class="form-field">
+            <label class="form-label">CATATAN KHUSUS</label>
+            <textarea id="mitra-catatan" class="form-textarea" placeholder="cth. Toko ramai pagi hari, bayar tiap akhir pekan." style="min-height: 80px;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-text" onclick="closeModal('modal-mitra')">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan Mitra</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div style="max-width: 1360px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div>
+        <strong>Churros Artisan Bakery Web Application</strong> — Versi 1.1 (Revisi Transaksi PO, Font Awesome &amp; Tasks).
+      </div>
+      <div>
+        Google Antigravity IDE · Linux Apache Environment
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="js/app.js"></script>
+</body>
+</html>
